@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -7,13 +7,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
 
 namespace RxFoolery
-{
+{    
     [TestClass]
-    public class BasicObservables
+    public class ObservableCreationFromScratch
     {
         [TestMethod]
         public void Never()
-            {
+        {
             var scheduler = new TestScheduler();
             var never = Observable.Never<int>();
             var exceptionThrown = false;
@@ -31,9 +31,9 @@ namespace RxFoolery
 
             Check.That(exceptionThrown)
                  .IsFalse();
- 
+
             scheduler.Start();
-            
+
             Check.That(exceptionThrown)
                  .IsTrue();
         }
@@ -115,7 +115,7 @@ namespace RxFoolery
                    .Subscribe(results.Add,
                               e => Assert.Fail("No exception is planned! {0}", e),
                               () => { });
-            
+
             scheduler.Start();
 
             Check.That(results)
@@ -123,74 +123,6 @@ namespace RxFoolery
                                   {
                                       3, 6, 8
                                   });
-        }
-
-        [TestMethod]
-        public void Interval()
-        {
-            var scheduler = new TestScheduler();
-            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
-                                               scheduler)
-                                     .Take(5);
-            var events = new List<long>();
-
-            interval.Subscribe(events.Add,
-                               e => Assert.Fail("No exception is planned! {0}", e),
-                               () => { });
-
-            scheduler.Start();
-
-            Check.That(events)
-                 .IsOnlyMadeOf(
-                               (long) 0,
-                               1,
-                               2,
-                               3,
-                               4);
-        }
-
-        [TestMethod]
-        public void Unsubscribe()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void Filtering()
-        {
-            var timedOut = true;
-            var scheduler = new TestScheduler();
-            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
-                                               scheduler)
-                                     .Take(5);
-
-            interval.Where(p => p > 3);
-
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void Subject()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void ReplaySubject()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void BehaviorSubject()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void AsyncSubject()
-        {
-            Assert.Fail();
-        }
+        }        
     }
 }

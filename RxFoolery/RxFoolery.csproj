@@ -68,8 +68,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="BasicObservables.cs" />
+    <Compile Include="ObservableMoreTricky.cs" />
+    <Compile Include="ObservableCreationFromScratch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeBasedObservables.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
