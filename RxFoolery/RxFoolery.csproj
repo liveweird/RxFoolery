@@ -38,8 +38,9 @@
     <Reference Include="Microsoft.Reactive.Testing">
       <HintPath>packages\Rx-Testing.2.2.4\lib\net45\Microsoft.Reactive.Testing.dll</HintPath>
     </Reference>
-    <Reference Include="NFluent">
-      <HintPath>packages\NFluent.1.1.0.0\lib\net40\NFluent.dll</HintPath>
+    <Reference Include="NFluent, Version=1.2.0.0, Culture=neutral, PublicKeyToken=18828b37b84b1437, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\NFluent.1.2.0.0\lib\net40\NFluent.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Reactive.Core">
