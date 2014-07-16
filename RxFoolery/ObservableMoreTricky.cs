@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
@@ -72,10 +73,51 @@ namespace RxFoolery
                  .IsTrue();
         }
 
-        [TestMethod]
-        public void FromEvent()
+        protected class TestEventArgs : EventArgs
         {
-            Assert.Fail();
+            private readonly int _a;
+
+            public TestEventArgs(int a)
+            {
+                _a = a;
+            }
+
+            public int A
+            {
+                get { return _a; }
+            }
+        }
+        protected static event EventHandler<TestEventArgs> TestEvent;
+
+        [TestMethod]
+        public void FromEventPattern()
+        {
+            var scheduler = new TestScheduler();
+            var fromEvent = Observable.FromEventPattern<TestEventArgs>(p => TestEvent += p,
+                                                                       p => TestEvent -= p,
+                                                                       scheduler);
+
+            var results = new List<int>();
+
+            fromEvent.Subscribe(i => results.Add(i.EventArgs.A),
+                                e => Assert.Fail("No exception is planned! {0}",
+                                                 e),
+                                () => { });
+
+            scheduler.Start();
+
+            TestEvent(null,
+                      new TestEventArgs(1));
+            TestEvent(null,
+                      new TestEventArgs(2));
+            TestEvent(null,
+                      new TestEventArgs(3));
+
+            Check.That(results)
+                 .ContainsExactly(new[]
+                                  {
+                                      1, 2, 3
+                                  });
         }
 
         [TestMethod]
