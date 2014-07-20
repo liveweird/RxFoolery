@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices.ComTypes;
+using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
@@ -87,6 +87,7 @@ namespace RxFoolery
                 get { return _a; }
             }
         }
+
         protected static event EventHandler<TestEventArgs> TestEvent;
 
         [TestMethod]
@@ -99,19 +100,20 @@ namespace RxFoolery
 
             var results = new List<int>();
 
-            fromEvent.Subscribe(i => results.Add(i.EventArgs.A),
-                                e => Assert.Fail("No exception is planned! {0}",
-                                                 e),
-                                () => { });
+            using (fromEvent.Subscribe(i => results.Add(i.EventArgs.A),
+                                       e => Assert.Fail("No exception is planned! {0}",
+                                                        e),
+                                       () => { }))
+            {
+                scheduler.Start();
 
-            scheduler.Start();
-
-            TestEvent(null,
-                      new TestEventArgs(1));
-            TestEvent(null,
-                      new TestEventArgs(2));
-            TestEvent(null,
-                      new TestEventArgs(3));
+                TestEvent(null,
+                          new TestEventArgs(1));
+                TestEvent(null,
+                          new TestEventArgs(2));
+                TestEvent(null,
+                          new TestEventArgs(3));
+            }
 
             Check.That(results)
                  .ContainsExactly(new[]
@@ -123,13 +125,75 @@ namespace RxFoolery
         [TestMethod]
         public void FromTask()
         {
-            Assert.Fail();
+            var executed = false;
+            var completed = false;
+            var returned = false;
+
+            var scheduler = new TestScheduler();
+            var fromTask = Observable.FromAsync(() => Task.Run(() => { executed = true; }));
+
+            using (fromTask.Timeout(TimeSpan.FromSeconds(100),
+                                    scheduler)
+                           .Subscribe(i => { returned = true; },
+                                      e => Assert.Fail("No exception is planned! {0}",
+                                                       e),
+                                      () => { completed = true; }))
+            {
+                scheduler.Start();
+
+                fromTask.Wait();
+            }
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(executed)
+                 .IsTrue();
+
+            Check.That(returned)
+                 .IsTrue();
         }
 
+        protected static event EventHandler<EventArgs> CancelEvent;
+
         [TestMethod]
-        public void Cancel()
+        public void CancelWithEvent()
         {
-            Assert.Fail();
+            var completed = false;
+
+            var scheduler = new TestScheduler();
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler);
+
+            var fromEvent = Observable.FromEventPattern<EventArgs>(p => CancelEvent += p,
+                                                                   p => CancelEvent -= p,
+                                                                   scheduler);
+
+            var cancellable = observable.TakeUntil(fromEvent);
+
+            var results = new List<long>();
+
+            using (cancellable.Subscribe(results.Add,
+                                         e => Assert.Fail("No exception is planned! {0}",
+                                                          e),
+                                         () => { completed = true; }))
+            {                
+                scheduler.AdvanceBy(TimeSpan.FromSeconds(3.5).Ticks);
+
+                CancelEvent(null,
+                            new EventArgs());
+
+                scheduler.AdvanceBy(TimeSpan.FromSeconds(3).Ticks);
+            }
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(results)
+                 .ContainsExactly(new long[]
+                                  {
+                                      0, 1, 2
+                                  });
         }
 
         [TestMethod]
@@ -182,6 +246,8 @@ namespace RxFoolery
         // combining
         // hot & cold observables
         // subscribe on
+        // merge
+        // throttle
 
         [TestMethod]
         public void Subject()
