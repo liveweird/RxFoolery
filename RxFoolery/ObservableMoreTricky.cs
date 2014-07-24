@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
@@ -140,8 +141,6 @@ namespace RxFoolery
                                       () => { completed = true; }))
             {
                 scheduler.Start();
-
-                fromTask.Wait();
             }
 
             Check.That(completed)
@@ -197,7 +196,13 @@ namespace RxFoolery
         }
 
         [TestMethod]
-        public void FilteringWithWhere()
+        public void Mapping()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void ReduceWithWhere()
         {
             var scheduler = new TestScheduler();
             var interval = Observable.Interval(TimeSpan.FromSeconds(1),
@@ -219,15 +224,71 @@ namespace RxFoolery
         }
 
         [TestMethod]
-        public void Mapping()
+        public void ReduceWithDistinct()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var created = Observable.Create<int>(o =>
+            {
+                o.OnNext(1);
+                o.OnNext(2);
+                o.OnNext(1);
+                o.OnNext(3);
+                o.OnNext(2);
+                o.OnNext(2);
+                o.OnCompleted();
+
+                return Disposable.Create(() => { });
+            });
+            var results = new List<int>();
+
+            created.Distinct()
+                   .Subscribe(results.Add,
+                              e => Assert.Fail("No exception is planned! {0}",
+                                               e),
+                              () => { });
+
+            scheduler.Start();
+
+            Check.That(results)
+                 .ContainsExactly(new[]
+                                  {
+                                      1, 2, 3
+                                  });
         }
 
         [TestMethod]
-        public void Reducing()
+        public void ReduceWithDistinctUntilChanged()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var created = Observable.Create<int>(o =>
+            {
+                o.OnNext(1);
+                o.OnNext(2);
+                o.OnNext(1);
+                o.OnNext(1);
+                o.OnNext(1);
+                o.OnNext(3);
+                o.OnNext(2);
+                o.OnNext(2);
+                o.OnCompleted();
+
+                return Disposable.Create(() => { });
+            });
+            var results = new List<int>();
+
+            created.DistinctUntilChanged()
+                   .Subscribe(results.Add,
+                              e => Assert.Fail("No exception is planned! {0}",
+                                               e),
+                              () => { });
+
+            scheduler.Start();
+
+            Check.That(results)
+                 .ContainsExactly(new[]
+                                  {
+                                      1, 2, 1, 3, 2
+                                  });
         }
 
         [TestMethod]
