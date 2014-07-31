@@ -74,6 +74,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="LetsGetCreative.cs" />
     <Compile Include="ObservableMoreTricky.cs" />
     <Compile Include="ObservableCreationFromScratch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
