@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +52,60 @@ namespace RxFoolery
         }
 
         [TestMethod]
+        public void Average()
+        {
+            var scheduler = new TestScheduler();
+            var result = new List<double>();
+            var completed = false;
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler);
+
+            observable.Take(6)
+                      .Dump("x")
+                      .Average()
+                      .Subscribe(result.Add,
+                               ex => Assert.Fail("No exception was expected! {0}",
+                                                 ex),
+                               () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(result)
+                 .IsOnlyMadeOf(2.5);
+        }
+
+        [TestMethod]
         public void AverageWithinWindow()
+        {
+            var scheduler = new TestScheduler();
+            var result = new List<double>();
+            var completed = false;
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler);
+            var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
+                                             scheduler);                                     
+
+            buffered.Take(3)
+                    .Select(p => p.Average())
+                    .Subscribe(result.Add,
+                               ex => Assert.Fail("No exception was expected! {0}",
+                                                 ex),
+                               () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(result)
+                 .IsOnlyMadeOf(0.5, 3, 6);
+        }
+
+        [TestMethod]
+        public void BufferingWithShift()
         {
             Assert.Fail();
         }
