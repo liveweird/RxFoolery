@@ -19,9 +19,7 @@ namespace RxFoolery
             var completed = false;
 
             var observable = Observable.Interval(TimeSpan.FromSeconds(1),
-                                                 scheduler)
-                                       .Delay(TimeSpan.FromMilliseconds(100),
-                                              scheduler);
+                                                 scheduler);
             var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
                                              scheduler);
             buffered.Take(3)
@@ -107,7 +105,44 @@ namespace RxFoolery
         [TestMethod]
         public void BufferingWithShift()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var result = new List<IEnumerable<long>>();
+            var completed = false;
+
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler)
+                                       .Delay(TimeSpan.FromSeconds(1.5),
+                                              scheduler);
+            var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
+                                             scheduler);
+            buffered.Take(3)
+                    .Dump("x",
+                          a => String.Join(",",
+                                           a.Select(p => p.ToString())))
+                    .Subscribe(result.Add,
+                               ex => Assert.Fail("No exception was expected! {0}",
+                                                 ex),
+                               () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(result.Count)
+                 .IsEqualTo(3);
+
+            Check.That(result[0]).IsOnlyMadeOf(
+                new long[] { 0 }
+            );
+
+            Check.That(result[1]).IsOnlyMadeOf(
+                new long[] { 1, 2, 3 }
+            );
+
+            Check.That(result[2]).IsOnlyMadeOf(
+                new long[] { 4, 5, 6 }
+            );
         }
 
         [TestMethod]
