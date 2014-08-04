@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
@@ -118,7 +119,7 @@ namespace RxFoolery
             buffered.Take(3)
                     .Dump("x",
                           a => String.Join(",",
-                                           a.Select(p => p.ToString())))
+                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
                     .Subscribe(result.Add,
                                ex => Assert.Fail("No exception was expected! {0}",
                                                  ex),
@@ -146,15 +147,87 @@ namespace RxFoolery
         }
 
         [TestMethod]
-        public void BufferingWithPresetBatchSize()
+        public void BufferingWithPreferredBatchSize()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var result = new List<IEnumerable<long>>();
+            var completed = false;
+
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler);
+            var buffered = observable.Buffer(TimeSpan.FromSeconds(5),
+                                             3,
+                                             scheduler);
+
+            buffered.Take(3)
+                    .Dump("x",
+                          a => String.Join(",",
+                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
+                    .Subscribe(result.Add,
+                               ex => Assert.Fail("No exception was expected! {0}",
+                                                 ex),
+                               () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(result.Count)
+                 .IsEqualTo(3);
+
+            Check.That(result[0]).IsOnlyMadeOf(
+                new long[] { 0, 1, 2 }
+            );
+
+            Check.That(result[1]).IsOnlyMadeOf(
+                new long[] { 3, 4, 5 }
+            );
+
+            Check.That(result[2]).IsOnlyMadeOf(
+                new long[] { 6, 7, 8 }
+            );
         }
 
         [TestMethod]
-        public void BufferingWithPreferredBatchSize()
+        public void BufferingWithPresetBatchSize()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var result = new List<IEnumerable<long>>();
+            var completed = false;
+
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler);
+            var buffered = observable.Buffer(4);
+
+            buffered.Take(3)
+                    .Dump("x",
+                          a => String.Join(",",
+                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
+                    .Subscribe(result.Add,
+                               ex => Assert.Fail("No exception was expected! {0}",
+                                                 ex),
+                               () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(completed)
+                 .IsTrue();
+
+            Check.That(result.Count)
+                 .IsEqualTo(3);
+
+            Check.That(result[0]).IsOnlyMadeOf(
+                new long[] { 0, 1, 2, 3 }
+            );
+
+            Check.That(result[1]).IsOnlyMadeOf(
+                new long[] { 4, 5, 6, 7 }
+            );
+
+            Check.That(result[2]).IsOnlyMadeOf(
+                new long[] { 8, 9, 10, 11 }
+            );
         }
 
         [TestMethod]
