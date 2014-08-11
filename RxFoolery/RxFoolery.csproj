@@ -74,12 +74,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="LetsGetCreative.cs" />
+    <Compile Include="00_Basics.cs" />
+    <Compile Include="04_LetsGetCreative.cs" />
+    <Compile Include="06_BeyondBasics.cs" />
+    <Compile Include="05_Combining.cs" />
+    <Compile Include="07_HotAndCold.cs" />
     <Compile Include="ObservableExtentions.cs" />
-    <Compile Include="ObservableMoreTricky.cs" />
-    <Compile Include="ObservableCreationFromScratch.cs" />
+    <Compile Include="03_ObservableMoreTricky.cs" />
+    <Compile Include="01_ObservableCreationFromScratch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TimeBasedObservables.cs" />
+    <Compile Include="02_TimeBasedObservables.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

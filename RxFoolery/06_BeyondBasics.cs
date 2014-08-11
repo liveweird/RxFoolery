@@ -3,7 +3,7 @@
 namespace RxFoolery
 {
     [TestClass]
-    class BeyondBasics
+    public class BeyondBasics
     {
         [TestMethod]
         public void Do()

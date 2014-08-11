@@ -3,7 +3,7 @@
 namespace RxFoolery
 {
     [TestClass]
-    class Combining
+    public class Combining
     {
         [TestMethod]
         public void Concat()
