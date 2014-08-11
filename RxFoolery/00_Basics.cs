@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
+using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
 
@@ -131,7 +135,48 @@ namespace RxFoolery
                                   long.MinValue);
         }
 
-        // Multithreaded by design?
-        // So, how to do multithreading
+        [TestMethod]
+        public void IsItMultithreadedByDesign()
+        {
+            var id = Thread.CurrentThread.ManagedThreadId;
+
+            var threads = new List<int>();
+
+            var scheduler = new TestScheduler();
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler)
+                                       .Take(3);
+
+            observable.Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
+
+            scheduler.Start();
+
+            Check.That(threads)
+                 .IsOnlyMadeOf(id);
+        }
+
+        [TestMethod]
+        public void ObserveOn()
+        {
+            var id = Thread.CurrentThread.ManagedThreadId;
+
+            var threads = new List<int>();
+
+            var scheduler = new TestScheduler();
+            var observerScheduler = Scheduler.NewThread;
+
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler)
+                                       .Take(3);
+
+            observable.ObserveOn(observerScheduler)
+                      .Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
+
+            scheduler.Start();
+
+            Check.That(threads)
+                 .Not
+                 .Contains(id);
+        }
     }
 }

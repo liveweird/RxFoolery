@@ -317,13 +317,6 @@ namespace RxFoolery
             Assert.Fail();
         }
 
-        // select many
-        // combining
-        // hot & cold observables
-        // subscribe on
-        // merge
-        // throttle
-
         [TestMethod]
         public void Subject()
         {
