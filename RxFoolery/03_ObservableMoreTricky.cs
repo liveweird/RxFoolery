@@ -155,6 +155,12 @@ namespace RxFoolery
                  .IsTrue();
         }
 
+        [TestMethod]
+        public void FromEnumerable()
+        {
+            Assert.Fail();
+        }
+
         protected static event EventHandler<EventArgs> CancelEvent;
 
         [TestMethod]
@@ -294,7 +300,13 @@ namespace RxFoolery
         }
 
         [TestMethod]
-        public void Aggregate()
+        public void InspectWithContains()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void InspectWithAny()
         {
             Assert.Fail();
         }

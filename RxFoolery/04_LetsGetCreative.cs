@@ -235,5 +235,41 @@ namespace RxFoolery
         {
             Assert.Fail();
         }
+
+        [TestMethod]
+        public void Throttle()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void GroupBy()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Materialize()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Dematerialize()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void SelectMany()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void Scan()
+        {
+            Assert.Fail();
+        }
     }
 }
