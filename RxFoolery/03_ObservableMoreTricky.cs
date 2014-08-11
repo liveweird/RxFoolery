@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -158,7 +157,25 @@ namespace RxFoolery
         [TestMethod]
         public void FromEnumerable()
         {
-            Assert.Fail();
+            IEnumerable<long> source = new List<long>
+                                       {
+                                           0,
+                                           666,
+                                           -23,
+                                           (long) 3.75,
+                                           (long) -99.1
+                                       };
+
+            var testScheduler = new TestScheduler();
+            var observable = source.ToObservable(testScheduler);
+
+            var results = new List<long>();
+            observable.Subscribe(results.Add);
+
+            testScheduler.Start();
+
+            Check.That(source)
+                 .ContainsExactly(results);
         }
 
         protected static event EventHandler<EventArgs> CancelEvent;
@@ -201,12 +218,6 @@ namespace RxFoolery
                                   {
                                       0, 1, 2
                                   });
-        }
-
-        [TestMethod]
-        public void Mapping()
-        {
-            Assert.Fail();
         }
 
         [TestMethod]
@@ -302,19 +313,101 @@ namespace RxFoolery
         [TestMethod]
         public void InspectWithContains()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var created = Observable.Create<int>(o =>
+                                                 {
+                                                     o.OnNext(1);
+                                                     o.OnNext(2);
+                                                     o.OnNext(1);
+                                                     o.OnNext(1);
+                                                     o.OnNext(1);
+                                                     o.OnNext(3);
+                                                     o.OnNext(2);
+                                                     o.OnNext(2);
+                                                     o.OnCompleted();
+
+                                                     return Disposable.Create(() => { });
+                                                 });
+
+            var result1 = new List<bool>();
+            var result2 = new List<bool>();
+
+            var filtered1 = created.Contains(2);
+            filtered1.Subscribe(result1.Add,
+                               e => Assert.Fail("No exception is planned! {0}",
+                                                e),
+                               () => { });
+
+
+            var filtered2 = created.Contains(6);
+            filtered2.Subscribe(result2.Add,
+                               e => Assert.Fail("No exception is planned! {0}",
+                                                e),
+                               () => { });
+
+            scheduler.Start();
+
+            Check.That(result1)
+                 .ContainsExactly(new[]
+                                  {
+                                      true
+                                  });
+
+            Check.That(result2)
+                 .ContainsExactly(new[]
+                                  {
+                                      false
+                                  });
         }
 
         [TestMethod]
         public void InspectWithAny()
         {
-            Assert.Fail();
-        }
+            var scheduler = new TestScheduler();
+            var created = Observable.Create<int>(o =>
+            {
+                o.OnNext(1);
+                o.OnNext(2);
+                o.OnNext(1);
+                o.OnNext(1);
+                o.OnNext(1);
+                o.OnNext(3);
+                o.OnNext(2);
+                o.OnNext(2);
+                o.OnCompleted();
 
-        [TestMethod]
-        public void Partition()
-        {
-            Assert.Fail();
+                return Disposable.Create(() => { });
+            });
+
+            var result1 = new List<bool>();
+            var result2 = new List<bool>();
+
+            var filtered1 = created.Any(p => p > 2);
+            filtered1.Subscribe(result1.Add,
+                               e => Assert.Fail("No exception is planned! {0}",
+                                                e),
+                               () => { });
+
+
+            var filtered2 = created.Any(p => p < 1);
+            filtered2.Subscribe(result2.Add,
+                               e => Assert.Fail("No exception is planned! {0}",
+                                                e),
+                               () => { });
+
+            scheduler.Start();
+
+            Check.That(result1)
+                 .ContainsExactly(new[]
+                                  {
+                                      true
+                                  });
+
+            Check.That(result2)
+                 .ContainsExactly(new[]
+                                  {
+                                      false
+                                  });
         }
 
         [TestMethod]
