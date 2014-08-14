@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
+using NFluent.Extensions;
 
 namespace RxFoolery
 {
@@ -325,13 +323,33 @@ namespace RxFoolery
         [TestMethod]
         public void Materialize()
         {
-            Assert.Fail();
-        }
+            var scheduler = new TestScheduler();
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler)
+                                     .Take(3)
+                                     .Materialize()
+                                     .Dump("Metadata", n => n.ToStringProperlyFormated());
+            
+            var notifications = new List<Notification<long>>();
+            interval.Subscribe(notifications.Add,
+                               e => Assert.Fail("No exception is planned! {0}", e),
+                               () => { });
 
-        [TestMethod]
-        public void Dematerialize()
-        {
-            Assert.Fail();
+            scheduler.Start();
+
+            Check.That(notifications.Count())
+                 .IsEqualTo(4);
+
+            Check.That(notifications[0].HasValue &&
+                       notifications[0].Value == 0);
+
+            Check.That(notifications[1].HasValue &&
+                       notifications[1].Value == 1);
+
+            Check.That(notifications[2].HasValue &&
+                       notifications[2].Value == 2);
+
+            Check.That(notifications[3].Kind == NotificationKind.OnCompleted);
         }
 
         [TestMethod]
