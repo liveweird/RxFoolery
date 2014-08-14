@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NFluent;
@@ -233,19 +237,89 @@ namespace RxFoolery
         [TestMethod]
         public void Sample()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler)
+                                       .Sample(TimeSpan.FromSeconds(3),
+                                               scheduler)
+                                       .Take(3);
+
+            var result = new List<long>();
+            observable.Subscribe(result.Add);
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly(1L,
+                                  4,
+                                  7);
         }
 
         [TestMethod]
         public void Throttle()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var observable = scheduler.CreateHotObservable(new Recorded<Notification<long>>(0,
+                                                                                            Notification.CreateOnNext(1L)),
+                                                           new Recorded<Notification<long>>(100,
+                                                                                            Notification.CreateOnNext(2L)),
+                                                           new Recorded<Notification<long>>(500,
+                                                                                            Notification.CreateOnNext(3L)),
+                                                           new Recorded<Notification<long>>(800,
+                                                                                            Notification.CreateOnNext(4L)));
+            
+            var throttled = observable.Throttle(TimeSpan.FromMilliseconds(250),
+                                                scheduler);
+
+            var result = new List<long>();
+            throttled.Subscribe(result.Add);
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly(3, 4);
+
         }
 
         [TestMethod]
         public void GroupBy()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+                                                 scheduler)
+                                       .Take(10);
+
+            var grouped = observable.GroupBy(p => p % 4);
+            
+            var result = new Dictionary<long, List<long>>
+                         {
+                             { 0L, new List<long>() },
+                             { 1L, new List<long>() },
+                             { 2L, new List<long>() },
+                             { 3L, new List<long>() }
+                         };
+
+            grouped.Subscribe(g => g.Subscribe(h => result[g.Key].Add(h)));
+
+            scheduler.Start();
+
+            Check.That(result[0])
+                 .ContainsExactly(0L,
+                                  4,
+                                  8);
+
+            Check.That(result[1])
+                 .ContainsExactly(1L,
+                                  5,
+                                  9);
+
+            Check.That(result[2])
+                 .ContainsExactly(2L,
+                                  6);
+
+            Check.That(result[3])
+                 .ContainsExactly(3L,
+                                  7);
         }
 
         [TestMethod]
