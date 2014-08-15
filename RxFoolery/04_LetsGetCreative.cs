@@ -353,15 +353,49 @@ namespace RxFoolery
         }
 
         [TestMethod]
-        public void SelectMany()
+        public void Aggregate()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler)
+                                     .Take(5);
+
+            var result = new List<long>();
+            var aggregate = interval.Aggregate(0L,
+                                               (a,
+                                                p) => a + p);
+
+            aggregate.Subscribe(result.Add);
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly(10L);
         }
 
         [TestMethod]
         public void Scan()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler)
+                                     .Take(5);
+
+            var result = new List<long>();
+            var aggregate = interval.Scan(0L,
+                                          (a,
+                                           p) => a + p);
+
+            aggregate.Subscribe(result.Add);
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly(0L,
+                                  1,
+                                  3,
+                                  6,
+                                  10);
         }
     }
 }
