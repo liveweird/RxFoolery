@@ -14,16 +14,18 @@ namespace RxFoolery
     {
         private static IObservable<string> CreateSeq(IScheduler scheduler,
                                                      double delay,
-                                                     double seconds,
+                                                     double interval,
                                                      string prefix,
-                                                     int threshold)
+                                                     int limit)
         {
-            return Observable.Interval(TimeSpan.FromSeconds(seconds),
+            return Observable.Interval(TimeSpan.FromSeconds(interval),
                                        scheduler)
                              .Select(p => string.Format("{0}{1}",
                                                         prefix,
                                                         p))
-                             .Take(threshold);
+                             .Delay(TimeSpan.FromSeconds(delay),
+                                    scheduler)
+                             .Take(limit);
         }
 
         [TestMethod]
@@ -32,21 +34,21 @@ namespace RxFoolery
             var scheduler = new TestScheduler();
 
             var seq1 = CreateSeq(scheduler,
-                                 0,
-                                 1,
-                                 "A",
-                                 3);
+                                 delay: 0,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
 
             var seq2 = CreateSeq(scheduler,
-                     0,
-                     0.7,
-                     "B",
-                     3);
+                                 delay: 0,
+                                 interval: 0.7,
+                                 prefix: "B",
+                                 limit: 3);
 
             var result = new List<string>();
 
             seq1.Concat(seq2)
-                     .Subscribe(result.Add);
+                .Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -57,13 +59,59 @@ namespace RxFoolery
         [TestMethod]
         public void Amb()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 0.7,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 1,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var result = new List<string>();
+
+            seq1.Amb(seq2)
+                .Subscribe(result.Add);
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("B0", "B1", "B2");
         }
 
         [TestMethod]
         public void Merge()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 1,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var result = new List<string>();
+
+            seq1.Merge(seq2)
+                .TimeInterval(scheduler)
+                .Dump("merged")
+                .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("B0", "A0", "B1", "A1", "B2", "A2");
         }
 
         [TestMethod]
