@@ -11,7 +11,15 @@ namespace RxFoolery
 {
     public class TestObservable : IObservable<long>
     {
-        private readonly List<IObserver<long>> _observers = new List<IObserver<long>>(); 
+        private readonly List<IObserver<long>> _observers = new List<IObserver<long>>();
+
+        public IDisposable Subscribe(IObserver<long> observer)
+        {
+            _observers.Add(observer);
+
+            return new TestSubscription(this,
+                                        observer);
+        }
 
         public void DoSomething()
         {
@@ -29,14 +37,6 @@ namespace RxFoolery
                                    p.OnNext((long) -7.5);
                                    p.OnCompleted();
                                });
-        }
-
-        public IDisposable Subscribe(IObserver<long> observer)
-        {
-            _observers.Add(observer);
-
-            return new TestSubscription(this,
-                                        observer);
         }
 
         public void StopObserving(IObserver<long> observer)
@@ -98,7 +98,6 @@ namespace RxFoolery
     [TestClass]
     public class Basics
     {
-        // Observable
         [TestMethod]
         public void ObservableTest()
         {

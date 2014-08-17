@@ -75,15 +75,15 @@
   </Choose>
   <ItemGroup>
     <Compile Include="00_Basics.cs" />
-    <Compile Include="04_LetsGetCreative.cs" />
-    <Compile Include="06_BeyondBasics.cs" />
-    <Compile Include="05_Combining.cs" />
-    <Compile Include="07_HotAndCold.cs" />
+    <Compile Include="06_LetsGetCreative.cs" />
+    <Compile Include="03_BeyondBasics.cs" />
+    <Compile Include="07_Combining.cs" />
     <Compile Include="ObservableExtentions.cs" />
-    <Compile Include="03_ObservableMoreTricky.cs" />
+    <Compile Include="04_ObservableMoreTricky.cs" />
     <Compile Include="01_ObservableCreationFromScratch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="02_TimeBasedObservables.cs" />
+    <Compile Include="05_Subjects.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
