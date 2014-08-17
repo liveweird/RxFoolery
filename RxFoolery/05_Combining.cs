@@ -210,7 +210,44 @@ namespace RxFoolery
         [TestMethod]
         public void AndThenWhen()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 0.7,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var seq3 = CreateSeq(scheduler,
+                                 delay: 1.0,
+                                 interval: 0.3,
+                                 prefix: "C",
+                                 limit: 5);
+
+            var result = new List<string>();
+
+            Observable.When(seq1.And(seq2)
+                                .And(seq3)
+                                .Then((p,
+                                       q,
+                                       r) => string.Format("{0}-{1}-{2}",
+                                                           p,
+                                                           q,
+                                                           r)))
+                      .TimeInterval(scheduler)
+                      .Dump("merged")
+                      .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("A0-B0-C0", "A1-B1-C1", "A2-B2-C2");
         }
 
         [TestMethod]
