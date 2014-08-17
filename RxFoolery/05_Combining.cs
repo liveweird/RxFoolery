@@ -117,19 +117,94 @@ namespace RxFoolery
         [TestMethod]
         public void Switch()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 2.5,
+                                 prefix: "A",
+                                 limit: 3)
+                .Select(p => CreateSeq(scheduler,
+                                       delay: 0,
+                                       interval: 1,
+                                       prefix: p,
+                                       limit: 3));
+
+            var result = new List<string>();
+
+            seq2.Switch()
+                .TimeInterval(scheduler)
+                .Dump("switched")
+                .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("A00", "A01", "A10", "A11", "A20", "A21", "A22");
         }
 
         [TestMethod]
         public void CombineLatest()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 0.7,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var result = new List<string>();
+
+            seq1.CombineLatest(seq2, (p,q) => string.Format("{0}-{1}",
+                                                            p,
+                                                            q))
+                .TimeInterval(scheduler)
+                .Dump("merged")
+                .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("A0-B1", "A0-B2", "A1-B2", "A2-B2");
         }
 
         [TestMethod]
         public void Zip()
         {
-            Assert.Fail();
+            var scheduler = new TestScheduler();
+
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 0.7,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var result = new List<string>();
+
+            seq1.Zip(seq2, (p, q) => string.Format("{0}-{1}",
+                                                            p,
+                                                            q))
+                .TimeInterval(scheduler)
+                .Dump("merged")
+                .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("A0-B0", "A1-B1", "A2-B2");
         }
 
         [TestMethod]
