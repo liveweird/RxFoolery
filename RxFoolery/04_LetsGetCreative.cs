@@ -257,16 +257,16 @@ namespace RxFoolery
         public void Throttle()
         {
             var scheduler = new TestScheduler();
-            var observable = scheduler.CreateHotObservable(new Recorded<Notification<long>>(0,
-                                                                                            Notification.CreateOnNext(1L)),
-                                                           new Recorded<Notification<long>>(100,
-                                                                                            Notification.CreateOnNext(2L)),
-                                                           new Recorded<Notification<long>>(500,
-                                                                                            Notification.CreateOnNext(3L)),
-                                                           new Recorded<Notification<long>>(800,
-                                                                                            Notification.CreateOnNext(4L)));
+            var observable = scheduler.CreateColdObservable(new Recorded<Notification<long>>(0,
+                                                                                             Notification.CreateOnNext(1L)),
+                                                            new Recorded<Notification<long>>(100,
+                                                                                             Notification.CreateOnNext(2L)),
+                                                            new Recorded<Notification<long>>(500,
+                                                                                             Notification.CreateOnNext(3L)),
+                                                            new Recorded<Notification<long>>(800,
+                                                                                             Notification.CreateOnNext(4L)));
             
-            var throttled = observable.Throttle(TimeSpan.FromMilliseconds(250),
+            var throttled = observable.Throttle(TimeSpan.FromTicks(350),
                                                 scheduler);
 
             var result = new List<long>();
@@ -275,7 +275,7 @@ namespace RxFoolery
             scheduler.Start();
 
             Check.That(result)
-                 .ContainsExactly(3, 4);
+                 .ContainsExactly(2L, 4);
 
         }
 
