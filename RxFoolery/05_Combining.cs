@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
@@ -166,7 +165,7 @@ namespace RxFoolery
                                                             p,
                                                             q))
                 .TimeInterval(scheduler)
-                .Dump("merged")
+                .Dump("combined")
                 .Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
@@ -198,7 +197,7 @@ namespace RxFoolery
                                                             p,
                                                             q))
                 .TimeInterval(scheduler)
-                .Dump("merged")
+                .Dump("zipped")
                 .Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
@@ -253,13 +252,39 @@ namespace RxFoolery
         [TestMethod]
         public void Join()
         {
-            Assert.Fail();
-        }
+            var scheduler = new TestScheduler();
 
-        [TestMethod]
-        public void GroupJoin()
-        {
-            Assert.Fail();
+            var seq1 = CreateSeq(scheduler,
+                                 delay: 0.5,
+                                 interval: 1,
+                                 prefix: "A",
+                                 limit: 3);
+
+            var seq2 = CreateSeq(scheduler,
+                                 delay: 0,
+                                 interval: 0.7,
+                                 prefix: "B",
+                                 limit: 3);
+
+            var result = new List<string>();
+
+            seq1.Join(seq2,
+                      p => Observable.Timer(TimeSpan.FromSeconds(0.5),
+                                            scheduler),
+                      p => Observable.Timer(TimeSpan.FromSeconds(0.5),
+                                            scheduler),
+                      (p,
+                       q) => string.Format("{0}-{1}",
+                                           p,
+                                           q))
+                .TimeInterval(scheduler)
+                .Dump("joined")
+                .Subscribe(p => result.Add(p.Value));
+
+            scheduler.Start();
+
+            Check.That(result)
+                 .ContainsExactly("A0-B1", "A1-B2");
         }
     }
 }
