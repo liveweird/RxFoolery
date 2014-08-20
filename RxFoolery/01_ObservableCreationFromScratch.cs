@@ -51,6 +51,8 @@ namespace RxFoolery
                             e => Assert.Fail("No exception is planned! {0}", e),
                             () => { completed = true; });
 
+            scheduler.Start();
+
             Check.That(completed)
                  .IsEqualTo(true);
         }
@@ -68,6 +70,8 @@ namespace RxFoolery
                   .Subscribe(i => { result = i; },
                              e => Assert.Fail("No exception is planned! {0}", e),
                              () => { completed = true; });
+
+            scheduler.Start();
 
             Check.That(completed)
                  .IsTrue();
@@ -90,6 +94,8 @@ namespace RxFoolery
                                  thrown = true;
                              },
                              () => Assert.Fail("Sequence is not expected to end normally."));
+
+            scheduler.Start();
 
             Check.That(thrown)
                  .IsTrue();
@@ -123,6 +129,46 @@ namespace RxFoolery
                                   {
                                       3, 6, 8
                                   });
-        }        
+        }
+
+        [TestMethod]
+        public void ErrorEndsTheSequence()
+        {
+            var scheduler = new TestScheduler();
+            var created = Observable.Create<int>(o =>
+            {
+                o.OnNext(3);
+                o.OnNext(6);
+                o.OnError(new Exception());
+                o.OnNext(8);
+                o.OnCompleted();
+
+                return Disposable.Create(() => { });
+            });
+
+            var results = new List<int>();
+            var exception = false;
+            var completed = false;
+
+            created.Timeout(TimeSpan.FromTicks(100),
+                            scheduler)
+                   .Subscribe(results.Add,
+                              e => { exception = true; },
+                              () => { completed = true; });
+
+            scheduler.Start();
+
+            Check.That(exception)
+                 .IsTrue();
+
+            Check.That(completed)
+                 .IsFalse();
+
+            Check.That(results)
+                 .ContainsExactly(new[]
+                                  {
+                                      3, 6
+                                  });
+        }
     }
 }

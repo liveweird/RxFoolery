@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -231,7 +230,6 @@ namespace RxFoolery
 
             interval.Take(5)
                     .Where(p => p >= 3)
-                    .Take(3)
                     .Subscribe(result.Add);
 
             scheduler.Start();
