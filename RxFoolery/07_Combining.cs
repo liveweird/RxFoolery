@@ -189,7 +189,7 @@ namespace RxFoolery
                                  delay: 0,
                                  interval: 0.7,
                                  prefix: "B",
-                                 limit: 3);
+                                 limit: 4);
 
             var result = new List<string>();
 
