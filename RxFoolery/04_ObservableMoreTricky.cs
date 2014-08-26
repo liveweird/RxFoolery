@@ -23,12 +23,13 @@ namespace RxFoolery
 
             var results = new List<int>();
 
-            generated.Timeout(TimeSpan.FromTicks(100),
-                              scheduler)
-                     .Subscribe(results.Add,
-                                e => Assert.Fail("No exception is planned! {0}",
-                                                 e),
-                                () => { });
+            var observable = generated.Timeout(TimeSpan.FromTicks(100),
+                                               scheduler);
+
+            //observable.Subscribe(results.Add,
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { });
 
             scheduler.Start();
 
@@ -49,18 +50,13 @@ namespace RxFoolery
             var delegated = Observable.Start(() => { executed = true; },
                                              scheduler);
 
-            delegated.Timeout(TimeSpan.FromTicks(100),
-                              scheduler)
-                     .Subscribe(i =>
-                                {
-                                    returned = true;
-                                },
-                                e => Assert.Fail("No exception is planned! {0}",
-                                                 e),
-                                () =>
-                                {
-                                    completed = true;
-                                });
+            var observable = delegated.Timeout(TimeSpan.FromTicks(100),
+                                               scheduler);
+
+            //observable.Subscribe(i => { returned = true; },
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -101,10 +97,10 @@ namespace RxFoolery
 
             var results = new List<int>();
 
-            using (fromEvent.Subscribe(i => results.Add(i.EventArgs.A),
-                                       e => Assert.Fail("No exception is planned! {0}",
-                                                        e),
-                                       () => { }))
+            //using (fromEvent.Subscribe(i => results.Add(i.EventArgs.A),
+            //                           e => Assert.Fail("No exception is planned! {0}",
+            //                                            e),
+            //                           () => { }))
             {
                 scheduler.Start();
 
@@ -132,13 +128,13 @@ namespace RxFoolery
 
             var scheduler = new TestScheduler();
             var fromTask = Observable.FromAsync(() => Task.Run(() => { executed = true; }));
+            var observable = fromTask.Timeout(TimeSpan.FromSeconds(100),
+                                              scheduler);
 
-            using (fromTask.Timeout(TimeSpan.FromSeconds(100),
-                                    scheduler)
-                           .Subscribe(i => { returned = true; },
-                                      e => Assert.Fail("No exception is planned! {0}",
-                                                       e),
-                                      () => { completed = true; }))
+            //using (observable.Subscribe(i => { returned = true; },
+            //                            e => Assert.Fail("No exception is planned! {0}",
+            //                                             e),
+            //                            () => { completed = true; }))
             {
                 scheduler.Start();
             }
@@ -169,7 +165,7 @@ namespace RxFoolery
             var observable = source.ToObservable(testScheduler);
 
             var results = new List<long>();
-            observable.Subscribe(results.Add);
+            //observable.Subscribe(results.Add);
 
             testScheduler.Start();
 
@@ -196,10 +192,10 @@ namespace RxFoolery
 
             var results = new List<long>();
 
-            using (cancellable.Subscribe(results.Add,
-                                         e => Assert.Fail("No exception is planned! {0}",
-                                                          e),
-                                         () => { completed = true; }))
+            //using (cancellable.Subscribe(results.Add,
+            //                             e => Assert.Fail("No exception is planned! {0}",
+            //                                              e),
+            //                             () => { completed = true; }))
             {                
                 scheduler.AdvanceBy(TimeSpan.FromSeconds(3.5).Ticks);
 
@@ -228,11 +224,16 @@ namespace RxFoolery
 
             var result = new List<long>();
 
-            interval.Take(5)
-                    .Where(p => p >= 3)
-                    .Subscribe(result.Add);
+            var observable = interval.Take(5)
+                                     .Where(p => p >= 3);
+
+            //observable.Subscribe(result.Add);
 
             scheduler.Start();
+
+            Check.That(result)
+                 .Not
+                 .IsEmpty();
 
             Check.That(result)
                  .IsOnlyMadeOf((long)3,
@@ -258,11 +259,12 @@ namespace RxFoolery
             });
             var results = new List<int>();
 
-            created.Distinct()
-                   .Subscribe(results.Add,
-                              e => Assert.Fail("No exception is planned! {0}",
-                                               e),
-                              () => { });
+            var observable = created.Distinct();
+
+            //observable.Subscribe(results.Add,
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { });
 
             scheduler.Start();
 
@@ -293,11 +295,12 @@ namespace RxFoolery
             });
             var results = new List<int>();
 
-            created.DistinctUntilChanged()
-                   .Subscribe(results.Add,
-                              e => Assert.Fail("No exception is planned! {0}",
-                                               e),
-                              () => { });
+            var observable = created.DistinctUntilChanged();
+
+            //observable.Subscribe(results.Add,
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { });
 
             scheduler.Start();
 
@@ -331,17 +334,16 @@ namespace RxFoolery
             var result2 = new List<bool>();
 
             var filtered1 = created.Contains(2);
-            filtered1.Subscribe(result1.Add,
-                               e => Assert.Fail("No exception is planned! {0}",
-                                                e),
-                               () => { });
-
+            //filtered1.Subscribe(result1.Add,
+            //                    e => Assert.Fail("No exception is planned! {0}",
+            //                                     e),
+            //                    () => { });
 
             var filtered2 = created.Contains(6);
-            filtered2.Subscribe(result2.Add,
-                               e => Assert.Fail("No exception is planned! {0}",
-                                                e),
-                               () => { });
+            //filtered2.Subscribe(result2.Add,
+            //                    e => Assert.Fail("No exception is planned! {0}",
+            //                                     e),
+            //                    () => { });
 
             scheduler.Start();
 
@@ -381,17 +383,16 @@ namespace RxFoolery
             var result2 = new List<bool>();
 
             var filtered1 = created.Any(p => p > 2);
-            filtered1.Subscribe(result1.Add,
-                               e => Assert.Fail("No exception is planned! {0}",
-                                                e),
-                               () => { });
-
+            //filtered1.Subscribe(result1.Add,
+            //                    e => Assert.Fail("No exception is planned! {0}",
+            //                                     e),
+            //                    () => { });
 
             var filtered2 = created.Any(p => p < 1);
-            filtered2.Subscribe(result2.Add,
-                               e => Assert.Fail("No exception is planned! {0}",
-                                                e),
-                               () => { });
+            //filtered2.Subscribe(result2.Add,
+            //                    e => Assert.Fail("No exception is planned! {0}",
+            //                                     e),
+            //                    () => { });
 
             scheduler.Start();
 

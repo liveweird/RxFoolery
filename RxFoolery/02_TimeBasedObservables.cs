@@ -17,13 +17,18 @@ namespace RxFoolery
             var interval = Observable.Interval(TimeSpan.FromSeconds(1),
                                                scheduler)
                                      .Take(5);
+
             var events = new List<long>();
 
-            interval.Subscribe(events.Add,
-                               e => Assert.Fail("No exception is planned! {0}", e),
-                               () => { });
+            //interval.Subscribe(events.Add,
+            //                   e => Assert.Fail("No exception is planned! {0}", e),
+            //                   () => { });
 
             scheduler.Start();
+
+            Check.That(events)
+                 .Not
+                 .IsEmpty();
 
             Check.That(events)
                  .IsOnlyMadeOf(
@@ -43,10 +48,10 @@ namespace RxFoolery
             var result = long.MinValue;
             var completed = false;
 
-            timer.Subscribe(i => { result = i; },
-                            e => Assert.Fail("No exception is planned! {0}",
-                                             e),
-                            () => { completed = true; });
+            //timer.Subscribe(i => { result = i; },
+            //                e => Assert.Fail("No exception is planned! {0}",
+            //                                 e),
+            //                () => { completed = true; });
 
             scheduler.Start();
 

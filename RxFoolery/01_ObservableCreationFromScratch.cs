@@ -18,16 +18,17 @@ namespace RxFoolery
             var never = Observable.Never<int>();
             var exceptionThrown = false;
 
-            never.Timeout(TimeSpan.FromTicks(100),
-                          scheduler)
-                 .Subscribe(i => Assert.Fail("No event's supposed to happen!"),
-                            e =>
-                            {
-                                exceptionThrown = true;
-                                Check.That(e)
-                                     .IsInstanceOf<TimeoutException>();
-                            },
-                            () => Assert.Fail("Sequence will never complete!"));
+            var observable = never.Timeout(TimeSpan.FromTicks(100),
+                                           scheduler);
+
+            //observable.Subscribe(i => Assert.Fail("No event's supposed to happen!"),
+            //                     e =>
+            //                     {
+            //                         exceptionThrown = true;
+            //                         Check.That(e)
+            //                              .IsInstanceOf<TimeoutException>();
+            //                     },
+            //                     () => Assert.Fail("Sequence will never complete!"));
 
             Check.That(exceptionThrown)
                  .IsFalse();
@@ -45,11 +46,13 @@ namespace RxFoolery
             var scheduler = new TestScheduler();
             var empty = Observable.Empty<int>();
 
-            empty.Timeout(TimeSpan.FromTicks(100),
-                          scheduler)
-                 .Subscribe(i => Assert.Fail("No event's supposed to happen!"),
-                            e => Assert.Fail("No exception is planned! {0}", e),
-                            () => { completed = true; });
+            var observable = empty.Timeout(TimeSpan.FromTicks(100),
+                                           scheduler);
+
+            //observable.Subscribe(i => Assert.Fail("No event's supposed to happen!"),
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -65,11 +68,13 @@ namespace RxFoolery
             var manual = Observable.Return(4);
             var result = -1;
 
-            manual.Timeout(TimeSpan.FromTicks(100),
-                           scheduler)
-                  .Subscribe(i => { result = i; },
-                             e => Assert.Fail("No exception is planned! {0}", e),
-                             () => { completed = true; });
+            var observable = manual.Timeout(TimeSpan.FromTicks(100),
+                           scheduler);
+
+            //observable.Subscribe(i => { result = i; },
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -87,13 +92,12 @@ namespace RxFoolery
             var manual = Observable.Throw<Exception>(new Exception("Kabooom!"));
             var thrown = false;
 
-            manual.Timeout(TimeSpan.FromTicks(100), scheduler)
-                  .Subscribe(i => Assert.Fail("No value is planned!"),
-                             e =>
-                             {
-                                 thrown = true;
-                             },
-                             () => Assert.Fail("Sequence is not expected to end normally."));
+            var observable = manual.Timeout(TimeSpan.FromTicks(100),
+                                            scheduler);
+
+            //observable.Subscribe(i => Assert.Fail("No value is planned!"),
+            //                     e => { thrown = true; },
+            //                     () => Assert.Fail("Sequence is not expected to end normally."));
 
             scheduler.Start();
 
@@ -116,11 +120,13 @@ namespace RxFoolery
                                                  });
             var results = new List<int>();
 
-            created.Timeout(TimeSpan.FromTicks(100),
-                            scheduler)
-                   .Subscribe(results.Add,
-                              e => Assert.Fail("No exception is planned! {0}", e),
-                              () => { });
+            var observable = created.Timeout(TimeSpan.FromTicks(100),
+                                             scheduler);
+
+            //observable.Subscribe(results.Add,
+            //                     e => Assert.Fail("No exception is planned! {0}",
+            //                                      e),
+            //                     () => { });
 
             scheduler.Start();
 
@@ -150,11 +156,12 @@ namespace RxFoolery
             var exception = false;
             var completed = false;
 
-            created.Timeout(TimeSpan.FromTicks(100),
-                            scheduler)
-                   .Subscribe(results.Add,
-                              e => { exception = true; },
-                              () => { completed = true; });
+            var observable = created.Timeout(TimeSpan.FromTicks(100),
+                                             scheduler);
+
+            //observable.Subscribe(results.Add,
+            //                     e => { exception = true; },
+            //                     () => { completed = true; });
 
             scheduler.Start();
 

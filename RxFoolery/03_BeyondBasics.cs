@@ -48,7 +48,7 @@ namespace RxFoolery
             var exception = source.Catch(backup);
 
             var result = new List<long>();
-            exception.Subscribe(result.Add);
+            //exception.Subscribe(result.Add);
 
             Check.That(result)
                  .ContainsExactly(1L,
@@ -82,9 +82,9 @@ namespace RxFoolery
                                               })
                                 .Retry(5);
 
-            seq.Subscribe(result.Add,
-                          e => { error = true; },
-                          () => { completed = true; });
+            //seq.Subscribe(result.Add,
+            //              e => { error = true; },
+            //              () => { completed = true; });
 
             Check.That(error)
                  .IsFalse();

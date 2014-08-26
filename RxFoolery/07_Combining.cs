@@ -46,8 +46,9 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.Concat(seq2)
-                .Subscribe(result.Add);
+            var observable = seq1.Concat(seq2);
+
+            //observable.Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -74,8 +75,9 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.Amb(seq2)
-                .Subscribe(result.Add);
+            var observable = seq1.Amb(seq2);
+
+            //observable.Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -102,10 +104,11 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.Merge(seq2)
-                .TimeInterval(scheduler)
-                .Dump("merged")
-                .Subscribe(p => result.Add(p.Value));
+            var observable = seq1.Merge(seq2)
+                                 .TimeInterval(scheduler)
+                                 .Dump("merged");
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 
@@ -131,10 +134,12 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq2.Switch()
+            var observable = seq2.Switch()
                 .TimeInterval(scheduler)
-                .Dump("switched")
-                .Subscribe(p => result.Add(p.Value));
+                .Dump("switched");
+
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 
@@ -161,12 +166,15 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.CombineLatest(seq2, (p,q) => string.Format("{0}-{1}",
-                                                            p,
-                                                            q))
-                .TimeInterval(scheduler)
-                .Dump("combined")
-                .Subscribe(p => result.Add(p.Value));
+            var observable = seq1.CombineLatest(seq2,
+                                                (p,
+                                                 q) => string.Format("{0}-{1}",
+                                                                     p,
+                                                                     q))
+                                 .TimeInterval(scheduler)
+                                 .Dump("combined");
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 
@@ -193,12 +201,15 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.Zip(seq2, (p, q) => string.Format("{0}-{1}",
-                                                            p,
-                                                            q))
-                .TimeInterval(scheduler)
-                .Dump("zipped")
-                .Subscribe(p => result.Add(p.Value));
+            var observable = seq1.Zip(seq2,
+                                      (p,
+                                       q) => string.Format("{0}-{1}",
+                                                           p,
+                                                           q))
+                                 .TimeInterval(scheduler)
+                                 .Dump("zipped");
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 
@@ -231,17 +242,18 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            Observable.When(seq1.And(seq2)
-                                .And(seq3)
-                                .Then((p,
-                                       q,
-                                       r) => string.Format("{0}-{1}-{2}",
-                                                           p,
-                                                           q,
-                                                           r)))
-                      .TimeInterval(scheduler)
-                      .Dump("merged")
-                      .Subscribe(p => result.Add(p.Value));
+            var observable = Observable.When(seq1.And(seq2)
+                                                 .And(seq3)
+                                                 .Then((p,
+                                                        q,
+                                                        r) => string.Format("{0}-{1}-{2}",
+                                                                            p,
+                                                                            q,
+                                                                            r)))
+                                       .TimeInterval(scheduler)
+                                       .Dump("merged");
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 
@@ -268,18 +280,19 @@ namespace RxFoolery
 
             var result = new List<string>();
 
-            seq1.Join(seq2,
-                      p => Observable.Timer(TimeSpan.FromSeconds(0.5),
-                                            scheduler),
-                      p => Observable.Timer(TimeSpan.FromSeconds(0.5),
-                                            scheduler),
-                      (p,
-                       q) => string.Format("{0}-{1}",
-                                           p,
-                                           q))
-                .TimeInterval(scheduler)
-                .Dump("joined")
-                .Subscribe(p => result.Add(p.Value));
+            var observable = seq1.Join(seq2,
+                                       p => Observable.Timer(TimeSpan.FromSeconds(0.5),
+                                                             scheduler),
+                                       p => Observable.Timer(TimeSpan.FromSeconds(0.5),
+                                                             scheduler),
+                                       (p,
+                                        q) => string.Format("{0}-{1}",
+                                                            p,
+                                                            q))
+                                 .TimeInterval(scheduler)
+                                 .Dump("joined");
+
+            //observable.Subscribe(p => result.Add(p.Value));
 
             scheduler.Start();
 

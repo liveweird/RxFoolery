@@ -24,12 +24,13 @@ namespace RxFoolery
             var observable = Observable.Interval(TimeSpan.FromSeconds(1),
                                                  scheduler);
             var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
-                                             scheduler);
-            buffered.Take(3)
-                    .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+                                             scheduler)
+                                     .Take(3);
+            
+            //buffered.Subscribe(result.Add,
+            //                   ex => Assert.Fail("No exception was expected! {0}",
+            //                                     ex),
+            //                   () => { completed = true; });
 
             scheduler.Start();
 
@@ -58,16 +59,17 @@ namespace RxFoolery
             var scheduler = new TestScheduler();
             var result = new List<double>();
             var completed = false;
-            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
                                                  scheduler);
 
-            observable.Take(6)
-                      .Dump("x")
-                      .Average()
-                      .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+            var observable = interval.Take(6)
+                                     .Dump("x")
+                                     .Average();
+
+            //observable.Subscribe(result.Add,
+            //                     ex => Assert.Fail("No exception was expected! {0}",
+            //                                       ex),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -84,17 +86,18 @@ namespace RxFoolery
             var scheduler = new TestScheduler();
             var result = new List<double>();
             var completed = false;
-            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
-                                                 scheduler);
-            var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
-                                             scheduler);                                     
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler);
+            var buffered = interval.Buffer(TimeSpan.FromSeconds(3),
+                                           scheduler);
 
-            buffered.Take(3)
-                    .Select(p => p.Average())
-                    .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+            var observable = buffered.Take(3)
+                                     .Select(p => p.Average());
+
+            //observable.Subscribe(result.Add,
+            //                     ex => Assert.Fail("No exception was expected! {0}",
+            //                                       ex),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -112,20 +115,22 @@ namespace RxFoolery
             var result = new List<IEnumerable<long>>();
             var completed = false;
 
-            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
-                                                 scheduler)
-                                       .Delay(TimeSpan.FromSeconds(1.5),
-                                              scheduler);
-            var buffered = observable.Buffer(TimeSpan.FromSeconds(3),
-                                             scheduler);
-            buffered.Take(3)
-                    .Dump("x",
-                          a => String.Join(",",
-                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
-                    .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler)
+                                     .Delay(TimeSpan.FromSeconds(1.5),
+                                            scheduler);
+            var buffered = interval.Buffer(TimeSpan.FromSeconds(3),
+                                           scheduler);
+
+            var observable = buffered.Take(3)
+                                     .Dump("x",
+                                           a => String.Join(",",
+                                                            a.Select(p => p.ToString(CultureInfo.InvariantCulture))));
+
+            //observable.Subscribe(result.Add,
+            //                     ex => Assert.Fail("No exception was expected! {0}",
+            //                                       ex),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -155,20 +160,21 @@ namespace RxFoolery
             var result = new List<IEnumerable<long>>();
             var completed = false;
 
-            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
-                                                 scheduler);
-            var buffered = observable.Buffer(TimeSpan.FromSeconds(5),
-                                             3,
-                                             scheduler);
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
+                                               scheduler);
+            var buffered = interval.Buffer(TimeSpan.FromSeconds(5),
+                                           3,
+                                           scheduler);
 
-            buffered.Take(3)
-                    .Dump("x",
-                          a => String.Join(",",
-                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
-                    .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+            var observable = buffered.Take(3)
+                                     .Dump("x",
+                                           a => String.Join(",",
+                                                            a.Select(p => p.ToString(CultureInfo.InvariantCulture))));
+
+            //observable.Subscribe(result.Add,
+            //                     ex => Assert.Fail("No exception was expected! {0}",
+            //                                       ex),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -198,18 +204,19 @@ namespace RxFoolery
             var result = new List<IEnumerable<long>>();
             var completed = false;
 
-            var observable = Observable.Interval(TimeSpan.FromSeconds(1),
+            var interval = Observable.Interval(TimeSpan.FromSeconds(1),
                                                  scheduler);
-            var buffered = observable.Buffer(4);
+            var buffered = interval.Buffer(4);
 
-            buffered.Take(3)
-                    .Dump("x",
-                          a => String.Join(",",
-                                           a.Select(p => p.ToString(CultureInfo.InvariantCulture))))
-                    .Subscribe(result.Add,
-                               ex => Assert.Fail("No exception was expected! {0}",
-                                                 ex),
-                               () => { completed = true; });
+            var observable = buffered.Take(3)
+                                     .Dump("x",
+                                           a => String.Join(",",
+                                                            a.Select(p => p.ToString(CultureInfo.InvariantCulture))));
+
+            //observable.Subscribe(result.Add,
+            //                     ex => Assert.Fail("No exception was expected! {0}",
+            //                                       ex),
+            //                     () => { completed = true; });
 
             scheduler.Start();
 
@@ -243,7 +250,7 @@ namespace RxFoolery
                                        .Take(3);
 
             var result = new List<long>();
-            observable.Subscribe(result.Add);
+            //observable.Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -270,7 +277,7 @@ namespace RxFoolery
                                                 scheduler);
 
             var result = new List<long>();
-            throttled.Subscribe(result.Add);
+            //throttled.Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -297,7 +304,7 @@ namespace RxFoolery
                              { 3L, new List<long>() }
                          };
 
-            grouped.Subscribe(g => g.Subscribe(h => result[g.Key].Add(h)));
+            //grouped.Subscribe(g => g.Subscribe(h => result[g.Key].Add(h)));
 
             scheduler.Start();
 
@@ -331,9 +338,9 @@ namespace RxFoolery
                                      .Dump("Metadata", n => n.ToStringProperlyFormated());
             
             var notifications = new List<Notification<long>>();
-            interval.Subscribe(notifications.Add,
-                               e => Assert.Fail("No exception is planned! {0}", e),
-                               () => { });
+            //interval.Subscribe(notifications.Add,
+            //                   e => Assert.Fail("No exception is planned! {0}", e),
+            //                   () => { });
 
             scheduler.Start();
 
@@ -365,7 +372,7 @@ namespace RxFoolery
                                                (a,
                                                 p) => a + p);
 
-            aggregate.Subscribe(result.Add);
+            //aggregate.Subscribe(result.Add);
 
             scheduler.Start();
 
@@ -386,7 +393,7 @@ namespace RxFoolery
                                           (a,
                                            p) => a + p);
 
-            aggregate.Subscribe(result.Add);
+            //aggregate.Subscribe(result.Add);
 
             scheduler.Start();
 

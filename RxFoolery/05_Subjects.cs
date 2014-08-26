@@ -16,10 +16,10 @@ namespace RxFoolery
             var completed = false;
             var subject = new Subject<long>();
 
-            subject.Subscribe(results.Add,
-                              (ex) => Assert.Fail("No exception is planned! {0}",
-                                                  ex),
-                              () => { completed = true; });
+            //subject.Subscribe(results.Add,
+            //                  (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                      ex),
+            //                  () => { completed = true; });
 
             subject.OnNext(10);
             subject.OnNext(-235);
@@ -56,15 +56,15 @@ namespace RxFoolery
                 p.OnNext(-235);
             });
 
-            subject.Subscribe(subjectResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //subject.Subscribe(subjectResult.Add,
+            //      (ex) => Assert.Fail("No exception is planned! {0}",
+            //                          ex),
+            //      () => { });
 
-            replay.Subscribe(replayResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //replay.Subscribe(replayResult.Add,
+            //      (ex) => Assert.Fail("No exception is planned! {0}",
+            //                          ex),
+            //      () => { });
 
             subjects.ForEach(p =>
             {
@@ -105,15 +105,15 @@ namespace RxFoolery
                 p.OnNext(-235);
             });
 
-            subject.Subscribe(subjectResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //subject.Subscribe(subjectResult.Add,
+            //                  (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                      ex),
+            //                  () => { });
 
-            behavior.Subscribe(behaviorResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //behavior.Subscribe(behaviorResult.Add,
+            //                   (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                       ex),
+            //                   () => { });
 
             subjects.ForEach(p =>
             {
@@ -148,15 +148,15 @@ namespace RxFoolery
                                behavior
                            };
 
-            subject.Subscribe(subjectResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //subject.Subscribe(subjectResult.Add,
+            //                  (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                      ex),
+            //                  () => { });
 
-            behavior.Subscribe(behaviorResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //behavior.Subscribe(behaviorResult.Add,
+            //                   (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                       ex),
+            //                   () => { });
 
             subjects.ForEach(p =>
             {
@@ -197,15 +197,15 @@ namespace RxFoolery
                 p.OnNext(-235);
             });
 
-            subject.Subscribe(subjectResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //subject.Subscribe(subjectResult.Add,
+            //                  (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                      ex),
+            //                  () => { });
 
-            async.Subscribe(asyncResult.Add,
-                  (ex) => Assert.Fail("No exception is planned! {0}",
-                                      ex),
-                  () => { });
+            //async.Subscribe(asyncResult.Add,
+            //                (ex) => Assert.Fail("No exception is planned! {0}",
+            //                                    ex),
+            //                () => { });
 
             subjects.ForEach(p =>
             {

@@ -146,9 +146,13 @@ namespace RxFoolery
                                                  scheduler)
                                        .Take(3);
 
-            observable.Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
+            //observable.Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
 
             scheduler.Start();
+
+            Check.That(threads)
+                 .Not
+                 .IsEmpty();
 
             Check.That(threads)
                  .IsOnlyMadeOf(id);
@@ -168,10 +172,14 @@ namespace RxFoolery
                                                  scheduler)
                                        .Take(3);
 
-            observable.ObserveOn(observerScheduler)
-                      .Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
+            //observable.ObserveOn(observerScheduler)
+            //          .Subscribe(p => threads.Add(Thread.CurrentThread.ManagedThreadId));
 
             scheduler.Start();
+
+            Check.That(threads)
+                 .Not
+                 .IsEmpty();
 
             Check.That(threads)
                  .Not
